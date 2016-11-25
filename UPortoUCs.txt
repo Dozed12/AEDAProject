@@ -1,0 +1,3 @@
+Fundamentos da Medicina; FMED; 4, 2, 6
+Fundamentos da Arquitetura; FARQ; 3, 1, 6
+Fundamentos do Gaming; FGAM; 5, 2, 6

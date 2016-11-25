@@ -1,0 +1,41 @@
+Algoritmos de Processamento de Sinal; APSI; 4, 2, 6; 0
+Arquitetura de Sistemas de Software; ASSO; 4, 2, 6; 1
+Arquitetura e Gestao de Redes e Sistemas; AGRS; 4, 2, 6; 2
+Computacao Paralela; CPAR; 4, 2, 6; 2
+Comunicacoes Moveis; CMO; 4, 2, 6; 2
+Desenvolvimento de Jogos de Computador; DJCO; 4, 2, 6; 2
+Engenharia de Requisitos de Sistemas de Software; ERSS; 4, 2, 6; 2
+Gestao de Operacoes e Logistica; GOLO; 4, 2, 6; 2
+Linguagens de Anotacao e Processamento de Documentos; LAPD; 4, 2, 6; 2
+Marketing; MARK; 4, 2, 6; 2
+Modelacao e Simulacao de Sistemas; MSSI; 4, 2, 6; 2
+Multimedia e Novos Servicos; MNSE; 4, 2, 6; 2
+Seguranca em Sistemas Informaticos; SSIN; 4, 2, 6; 2
+Sinais e Sensores; SSEN; 4, 2, 6; 2
+Sistemas Criticos; SCRI; 4, 2, 6; 2
+Sistemas Embutidos e de Tempo Real; SETR; 4, 2, 6; 2
+Sistemas Geoespaciais; SGEO; 4, 2, 6; 2
+Sistemas Industriais; SINS; 4, 2, 6; 2
+Tecnologias de Bases de Dados; TBDA; 4, 2, 6; 2
+Tecnologias de Distribuicao e Integracao; TDIN; 4, 2, 6; 2
+Analise de Projetos de Investimento; APIN; 5, 1, 6; 2
+Armazens de Dados; ADAD; 5, 1, 6; 2
+Arquiteturas Avancadas de Computadores; AACO; 5, 1, 6; 2
+Computacao Movel; CMOV; 5, 1, 6; 2
+Descricao, Armazenamento e Pesquisa de Informacao; DAPI; 5, 1, 6; 2
+Extracao de Conhecimento e Aprendizagem Computacional; ECAC; 5, 1, 6; 2
+Gestao da Qualidade; GQUA; 5, 1, 6; 2
+Gestao de Informacao Empresarial; GIEM; 5, 1, 6; 2
+Interacao Pessoa-Computador; IPCO; 5, 1, 6; 2
+Metodologias Ageis de Desenvolvimento de Software; MADS; 5, 1, 6; 2
+Planeamento Estrategico de Sistemas de Informacao; PESI; 5, 1, 6; 2
+Processamento da Fala; PFAL; 5, 1, 6; 2
+Realidade Virtual e Aumentada; RVAU; 5, 1, 6; 2
+Robotica; ROBO; 5, 1, 6; 2
+Seminario de Engenharia de Software e Sistemas de Informacao; SESI; 5, 1, 6; 2
+Seminario de Rede e Tecnologias de Informacao; SRTI; 5, 1, 6; 2
+Seminario de Sistemas Inteligentes, Interacao e Multimedia; SSIM; 5, 1, 6; 2
+Servicos de Rede e de Sistemas; SRSI; 5, 1, 6; 2
+Sistemas de Apoio a Decisao; SADE; 5, 1, 6; 2
+Teste, Verificacao e Validacao de Software; TVVS; 5, 1, 6; 2
+Visao por Computador; VCOM; 5, 1, 6; 2

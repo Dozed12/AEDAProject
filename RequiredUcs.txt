@@ -1,0 +1,40 @@
+Matematica Discreta; MDIS; 1, 1, 6
+Arquitectura e Organizacao de Computadores; AOCO; 1, 1, 6
+Fundamentos da Programacao; FPRO; 1, 1, 6
+Analise Matematica; AMAT; 1, 1, 6
+Algebra; ALGE; 1, 1, 4.5
+Projeto FEUP; FEUP; 1, 1, 1.5
+Metodos Estatisticos; MEST; 1, 2, 4.5
+Programacao; PROG; 1, 2, 7.5
+Fisica I; FISI1; 1, 2, 6
+Complementos da Matematica; CMAT; 1, 2, 6
+Microprocessadores e Computadores Pessoais; MPCP; 1, 2, 6
+Teoria da Computacao; TCOM; 2, 1, 6
+Metodos Numericos; MNUM; 2, 1, 4.5;
+Fisica II; FISI2; 2, 1, 6
+Algoritmos e Estruturas de Dados; AEDA; 2, 1, 7.5
+Laboratorio de Computadores; LCOM; 2, 1, 6
+Bases de Dados; BDAD; 2, 2, 6
+Concepcao e Analise de Algoritmos; CAL; 2, 2, 6
+Computacao Grafica; CGRA; 2, 2, 6
+Sistemas Operativos; SOPE; 2, 2, 6
+Laboratorio de Programacao Orientada por Objetos; LPOO; 2, 2, 6
+Programacao em Logica; PLOG; 3, 1, 4.5
+Laboratorio de Aplicacoes com Interface Grafica; LAIG; 3, 1, 7.5
+Engenharia de Software; ESOF; 3, 1, 6
+Redes de Computadores; RCOM; 3, 1, 6
+Linguagens e Tecnologias Web; LTW; 3, 1, 6
+Laboratorio de Bases de Dados e Aplicacoes Web; LBAW; 3, 2, 7.5
+Inteligencia Artificial; IART; 3, 2, 6
+Compiladores; COMP; 3, 2, 6
+Sistemas Distribuidos; SDIS; 3, 2, 6
+Proficiencia Pessoal e Interpessoal; PPIN; 3, 2, 4.5
+Sistemas de Informacao; SINF; 4, 1, 6
+Laboratorio de Desenvolvimento de Software; LDSO; 4, 1, 7.5
+Gestao de Empresas; GEMP; 4, 1, 4.5
+Agentes e Inteligencia Artificial Distribuida; AIAD; 4, 1, 6
+Metodos Formais em Engenharia Software; MFES; 4, 1, 6
+Investigacao Operacional; IOPE; 4, 2, 4.5
+Laboratorio de Gestao de Projetos; LGPR; 4, 2, 7.5
+Preparacao da Dissertacao; PDIS; 5, 1, 6
+Dissertacao; DISS; 5, 2, 6
