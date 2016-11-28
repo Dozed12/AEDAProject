@@ -178,6 +178,8 @@ void Mieic::removeTutor(string AName)
  **************************************************************************************************/
 
 void Mieic::distributeTutors() {
+	if (ListofTutors.size() == 0)
+		return;
 	bool found = false;
 	for (unsigned int i = 0; i < ListofStudents.size(); i++)
 	{
@@ -1285,7 +1287,7 @@ void Mieic::showListofStudents()
 {
 	cout << TAB_BIG << "List of Students:" << endl << endl;
 
-	sort(ListofStudents.begin(), ListofStudents.end());			//Ordena os alunos de ordem alfabética
+	sort(ListofStudents.begin(), ListofStudents.end());			//Ordena os alunos de ordem alfabÃ©tica
 
 	for (unsigned int i = 0; i < ListofStudents.size(); i++)
 	{
@@ -1370,8 +1372,8 @@ Saves changes to files if changes occured
 
 void Mieic::SaveChanges() const
 {
-	if (StudentsChanged == true)		//se StudentsChanged estiver "true" a função passa tudo o que o vector contém para uma string
-	{									//e copia a string para o ficheiro original, apagando a informação antiga
+	if (StudentsChanged == true)		//se StudentsChanged estiver "true" a funÃ§Ã£o passa tudo o que o vector contÃ©m para uma string
+	{									//e copia a string para o ficheiro original, apagando a informaÃ§Ã£o antiga
 		stringstream ss;
 		for (size_t i = 0; i < ListofStudents.size(); ++i)
 		{
@@ -1384,8 +1386,8 @@ void Mieic::SaveChanges() const
 		OStudents << newStudents;
 		OStudents.close();
 	}
-	if (TutorsChanged == true)			//se TutorsChanged estiver "true" a função passa tudo o que o vector contém para uma string
-	{									//e copia a string para o ficheiro original, apagando a informação antiga
+	if (TutorsChanged == true)			//se TutorsChanged estiver "true" a funÃ§Ã£o passa tudo o que o vector contÃ©m para uma string
+	{									//e copia a string para o ficheiro original, apagando a informaÃ§Ã£o antiga
 		stringstream ss;
 		for (size_t i = 0; i < ListofTutors.size(); ++i)
 		{
@@ -1398,8 +1400,8 @@ void Mieic::SaveChanges() const
 		OTutors << newTutors;
 		OTutors.close();
 	}
-	if (RegistrationsChanged == true)			//se RegistrationsChanged estiver "true" a função passa tudo o que o vector contém para uma string
-	{											//e copia a string para o ficheiro original, apagando a informação antiga
+	if (RegistrationsChanged == true)			//se RegistrationsChanged estiver "true" a funÃ§Ã£o passa tudo o que o vector contÃ©m para uma string
+	{											//e copia a string para o ficheiro original, apagando a informaÃ§Ã£o antiga
 		stringstream ss;
 		for (size_t i = 0; i < ListofRegistrations.size(); ++i)
 		{
