@@ -91,8 +91,8 @@ unsigned short int StudentManagmentMenu()
 	cout << TAB << "2 - See Information About a Single Student" << endl;
 	cout << TAB << "3 - Add Student" << endl;
 	cout << TAB << "4 - Remove Student" << endl;
-	cout << TAB << "5 - Studant Passes Uc" << endl;
-	cout << TAB << "6 - Studant Doesn't Pass Uc" << endl;
+	cout << TAB << "5 - Student Passes Uc" << endl;
+	cout << TAB << "6 - Student Doesn't Pass Uc" << endl;
 	cout << TAB << "7 - Go Back to Inicial Menu" << endl << endl;
 	cout << TAB << "Input your Option: ";
 	Option = ReadUnsignedShortInt(1, 7);			//Chamada da funcao ReadUnsignedShortInt que verifica se opcao se encontrar entre 1 e 6
@@ -279,12 +279,15 @@ unsigned short int TutorManagmentMenu()
 	cout << TAB << "1 - Add Tutor" << endl;
 	cout << TAB << "2 - Remove Tutor" << endl;
 	cout << TAB << "3 - List all Tutors" << endl;
-	cout << TAB << "4 - Go Back to Inicial Menu" << endl << endl;
+	cout << TAB << "4 - Schedule a Reunion" << endl;
+	cout << TAB << "5 - Cancel a Reunion" << endl;
+	cout << TAB << "6 - Change Reunion's Topics" << endl;
+	cout << TAB << "7 - Go Back to Inicial Menu" << endl << endl;
 	cout << TAB << "Input your Option: ";
-	Option = ReadUnsignedShortInt(1, 4);		//Chamada da funcao ReadUnsignedShortInt que verifica se opcao se encontrar entre 1 e 4
+	Option = ReadUnsignedShortInt(1, 7);		//Chamada da funcao ReadUnsignedShortInt que verifica se opcao se encontrar entre 1 e 4
 	clearScreen();
 
-	if (Option == 4)
+	if (Option == 7)
 		return 0;
 
 	return Option;
@@ -326,6 +329,29 @@ void TutorManagmentOptions(Mieic & TheCourse) {
 		}
 			break;
 		case 3: TheCourse.showListofTutors();
+			break;
+		case 4:
+		{
+			string name;
+			cout << TAB_BIG << "New Reunion" << endl;
+			cout << endl << "Please enter the name of the Tutor you would like to schedule a reunion:" << TAB;
+			getline(cin, name);
+			TheCourse.addTutorReunion(name);
+			break;
+		}
+			break;
+		case 5:
+		{
+			string name;
+			cout << TAB_BIG << "Cancel Reunion" << endl;
+			cout << endl << "Please enter the name of the Tutor you would like to cancel the reunion:" << TAB;
+			getline(cin, name);
+			TheCourse.removeTutorReunion(name);
+			break;
+		}
+			break;
+		case 6:
+			//Alterar motivo da reunião
 			break;
 		}
 }
