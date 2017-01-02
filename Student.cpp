@@ -1,26 +1,10 @@
-/**********************************************************************************************//**
- * \file	Student.cpp
- *
- * \brief	Implements the student class.
- **************************************************************************************************/
-
 #include "Student.h"
 
 using namespace std;
 
-
 unsigned int Student::NumberofStudents = 0;
 
-/**********************************************************************************************//**
- * \fn	Student::Student(ifstream & In)
- *
- * \brief	Constructor.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param [in,out]	In	The in.
- **************************************************************************************************/
+
 
 Student::Student(ifstream & In)
 {
@@ -32,6 +16,16 @@ Student::Student(ifstream & In)
 	line = line.substr(line.find(";") + 2);
 	setEmail(line.substr(0, line.find(";")));
 	line = line.substr(line.find(";") + 2);
+
+	setYear(stoi(line.substr(0, line.find(";"))));
+	line = line.substr(line.find(";") + 2);
+	setYearClass(stoi(line.substr(0, line.find(";"))));
+	line = line.substr(line.find(";") + 2);
+
+	setAdress(line.substr(0, line.find(";")));
+	line = line.substr(line.find(";") + 2);
+	setContact(line.substr(0, line.find(";")));
+	line = line.substr(line.find(";") + 2);
 	setStatute(line.substr(0, line.find(";")));
 	line = line.substr(line.find(";") + 2);
 	setApprovedUcs(line.substr(0, line.find(";")));
@@ -40,50 +34,33 @@ Student::Student(ifstream & In)
 	line = line.substr(line.find(";") + 2);
 	setAvailableCredits(stof(line.substr(0, line.find(";"))));
 	line = line.substr(line.find(";") + 2);
-	setTutor(line);
+	setTutor(line.substr(0, line.find(";")));
+	line = line.substr(line.find(";") + 2);
+	setSomeKindofBool(stoi(line));
 }
 
-/**********************************************************************************************//**
- * \fn	Student::Student(string AName, long TheCode, string TheStatute, vector<Uc> TheApprovedUcs, vector<Uc> TheCurrentUcs)
- *
- * \brief	Constructor.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	AName		  	The name.
- * \param	TheCode		  	the code.
- * \param	TheStatute	  	the statute.
- * \param	TheApprovedUcs	the approved ucs.
- * \param	TheCurrentUcs 	the current ucs.
- **************************************************************************************************/
 
-Student::Student(string AName, long TheCode, string TheStatute, vector<Uc> TheApprovedUcs, vector<Uc> TheCurrentUcs)
+Student::Student(string AName, long TheCode, int Year, int YearClass, string TheStatute, string TheAdress, string TheContact, vector<Uc> TheApprovedUcs, vector<Uc> TheCurrentUcs, unsigned short int TheKindofBool)
 {
 	Code = TheCode;
 	Name = AName;
 	Email = "up" + to_string(TheCode) + "@fe.up.pt";
 	Statute = TheStatute;
+	Adress = TheAdress;
+	Contact = TheContact;
 	NumberofStudents++;
 	ApprovedUcs = TheApprovedUcs;
 	CurrentUcs = TheCurrentUcs;
+	SomeKindofBool = TheKindofBool;
 	AvailableCredits = 75;
 	for (unsigned int i = 0; i < CurrentUcs.size(); i++)
 	{
 		AvailableCredits = AvailableCredits - CurrentUcs[i].getECTS();
 	}
+	this->Year = Year;
+	this->YearClass = YearClass;
 }
 
-/**********************************************************************************************//**
- * \fn	void Student::setApprovedUcs(string TheUcs)
- *
- * \brief	Sets approved ucs.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	TheUcs	the ucs.
- **************************************************************************************************/
 
 void Student::setApprovedUcs(string TheUcs)
 {
@@ -99,16 +76,6 @@ void Student::setApprovedUcs(string TheUcs)
 	ApprovedUcs.push_back(Each_Uc);
 }
 
-/**********************************************************************************************//**
- * \fn	void Student::setCurrentUcs(string TheUcs)
- *
- * \brief	Sets current ucs.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	TheUcs	the ucs.
- **************************************************************************************************/
 
 void Student::setCurrentUcs(string TheUcs)
 {
@@ -124,16 +91,6 @@ void Student::setCurrentUcs(string TheUcs)
 	CurrentUcs.push_back(Each_Uc);
 }
 
-/**********************************************************************************************//**
- * \fn	void Student::addCurrentUc(string TheUc)
- *
- * \brief	Adds a current uc.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	TheUc	the uc.
- **************************************************************************************************/
 
 void Student::addCurrentUc(string TheUc)
 {
@@ -141,45 +98,16 @@ void Student::addCurrentUc(string TheUc)
 	CurrentUcs.push_back(NewUc);
 }
 
-/**********************************************************************************************//**
- * \fn	void Student::setTutor(Tutor Tutor)
- *
- * \brief	Sets a tutor.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	Tutor	The tutor.
- **************************************************************************************************/
 
 void Student::setTutor(Tutor Tutor) {
 	TheTutor = Tutor;
 }
 
-/**********************************************************************************************//**
- * \fn	void Student::setTutor(string Name)
- *
- * \brief	Sets a tutor.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	Name	The name.
- **************************************************************************************************/
 
 void Student::setTutor(string Name) {
 	TheTutor = Tutor(Name);
 }
 
-/**********************************************************************************************//**
- * \fn	string Student::showApprovedUcs()
- *
- * \brief	Shows the approved ucs.
- *
-Display Approved UCs
- *
- * \return	A string.
- **************************************************************************************************/
 
 string Student::showApprovedUcs()
 {
@@ -199,15 +127,6 @@ string Student::showApprovedUcs()
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	string Student::showCurrentUcs()
- *
- * \brief	Shows the current ucs.
- *
-Display Current UCs
- *
- * \return	A string.
- **************************************************************************************************/
 
 string Student::showCurrentUcs()
 {
@@ -224,59 +143,22 @@ string Student::showCurrentUcs()
 	return FinalOutput;
 }
 
-/**********************************************************************************************//**
- * \fn	bool Student::operator< (const Student & s2)
- *
- * \brief	Less-than comparison operator.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param	s2	The second Student.
- *
- * \return	True if the first parameter is less than the second.
- **************************************************************************************************/
 
-bool Student::operator < (const Student & s2)
+bool Student::operator < (const Student & s2) const  //Used somewhere.
 {
 	return this->Name < s2.getName();
 }
 
-//Not Used so far
-
-/**********************************************************************************************//**
- * \fn	void Student::Save(ofstream & out) const
- *
- * \brief	Saves the given out.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param [in,out]	out	The out to save.
- **************************************************************************************************/
 
 void Student::Save(ofstream & out) const
 {
-	out << Name << " ; " << Code << " ; " << Email;// << " ; " << Creditos....etc 	//"Enviar" para out (guardar) um Cliente na forma (id ; nome ; Data de adesao ; quantia gasta)
+	out << Name << " ; " << Code << " ; " << Email;// << " ; " << Creditos....etc 	//Not used so far
 }
 
-/**********************************************************************************************//**
- * \fn	ostream& operator<<(ostream& out, const Student & TheStudent)
- *
- * \brief	Stream insertion operator.
- *
- * \author	Francisco Moreira
- * \date	20/11/2016
- *
- * \param [in,out]	out		  	The out.
- * \param 		  	TheStudent	the student.
- *
- * \return	The shifted result.
- **************************************************************************************************/
 
 ostream& operator <<(ostream& out, const Student & TheStudent)
 {
-	out << TheStudent.Name << "; " << TheStudent.Code << "; " << TheStudent.Email << "; " << TheStudent.getStatute() << "; ";
+	out << TheStudent.Name << "; " << TheStudent.Code << "; " << TheStudent.Email << "; " << TheStudent.getYear() << "; " << TheStudent.getYearClass() << "; " << TheStudent.Adress << "; " << TheStudent.Contact << "; " << TheStudent.getStatute() << "; ";
 	for (unsigned int i = 0; i < TheStudent.getApprovedUcs().size(); i++)
 	{
 		if (i < TheStudent.getApprovedUcs().size()-1)
@@ -302,5 +184,19 @@ ostream& operator <<(ostream& out, const Student & TheStudent)
 	}
 	out << "; " << TheStudent.getAvailableCredits();
 	out << "; " << TheStudent.getTutor().getName();
+	out << "; " << TheStudent.getSomeKindofBool();
 	return out;
+}
+
+
+bool operator==(const Student &Student1, const Student &Student2)	// Not used so far
+{
+	if (Student1.Code == Student2.Code)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

@@ -1,9 +1,3 @@
-/**********************************************************************************************//**
- * \file	Date.cpp
- *
- * \brief	Implements the date class.
- **************************************************************************************************/
-
 #include "Date.h"
 
 #include <iostream>
@@ -13,15 +7,6 @@
 
 using namespace std;
 
-/**********************************************************************************************//**
- * \fn	Date::Date(string TheDate)
- *
- * \brief	Constructor.
- *
-Constructs new Date while checking for invalid dates
- *
- * \param	TheDate	the date.
- **************************************************************************************************/
 
 Date::Date(string TheDate)
 {
@@ -70,49 +55,8 @@ Date::Date(string TheDate)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	int Date::getDia() const
- *
- * \brief	Gets the dia.
- *
- *
- * \return	The dia.
- **************************************************************************************************/
 
-int Date::getDia() const { return Day; }
-
-/**********************************************************************************************//**
- * \fn	int Date::getMes() const
- *
- * \brief	Gets the mes.
- *
- *
- * \return	The mes.
- **************************************************************************************************/
-
-int Date::getMes() const { return Month; }
-
-/**********************************************************************************************//**
- * \fn	int Date::getAno() const
- *
- * \brief	Gets the ano.
- *
- *
- * \return	The ano.
- **************************************************************************************************/
-
-int Date::getAno() const { return Year; }
-
-/**********************************************************************************************//**
- * \fn	void Date::setDia(unsigned int NewDay)
- *
- * \brief	Sets a dia.
- *
- *
- * \param	NewDay	The new day.
- **************************************************************************************************/
-
-void Date::setDia(unsigned int NewDay)
+void Date::setDay(unsigned int NewDay)
 {
 	Day = NewDay;
 	while (Day > 31)			//Teste que avalia a variavel dia e, se esta for maior que 31, envia uma mensagem de erro e pede um novo Dia
@@ -124,16 +68,8 @@ void Date::setDia(unsigned int NewDay)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Date::setMes(unsigned int NewMonth)
- *
- * \brief	Sets the mes.
- *
- *
- * \param	NewMonth	The new month.
- **************************************************************************************************/
 
-void Date::setMes(unsigned int NewMonth)
+void Date::setMonth(unsigned int NewMonth)
 {
 	Month = NewMonth;
 	while (NewMonth > 12)		//Teste que avalia a variavel mes e, se esta for maior que 12, envia uma mensagem de erro e pede um novo Mes
@@ -159,16 +95,8 @@ void Date::setMes(unsigned int NewMonth)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Date::setAno(unsigned int NewYear)
- *
- * \brief	Sets an ano.
- *
- *
- * \param	NewYear	The new year.
- **************************************************************************************************/
 
-void Date::setAno(unsigned int NewYear)
+void Date::setYear(unsigned int NewYear)
 {
 	Year = NewYear;
 	while (Year < 1926)				//Assumir um limite inferior para as datas; neste caso pode-se considerar 01/01/2000 como a Data da inauguracao
@@ -180,18 +108,6 @@ void Date::setAno(unsigned int NewYear)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	ostream& operator<<(ostream& out, const Date & TheDate)
- *
- * \brief	Stream insertion operator.
- *
- * 
- *
- * \param [in,out]	out	   	The out.
- * \param 		  	TheDate	the date.
- *
- * \return	The shifted result.
- **************************************************************************************************/
 
 ostream& operator<<(ostream& out, const Date & TheDate)
 {
@@ -205,4 +121,26 @@ ostream& operator<<(ostream& out, const Date & TheDate)
 	FinalDate = dayD + '/' + monthD + '/' + yearD;		 //Colocar no objeto datafinal a data (em string) na forma (Dia/Mes/Ano)
 	out << FinalDate;									 //"Enviar" para out (Visualizacao) o objeto datafinal
 	return out;
+}
+
+
+bool Date::operator== (const Date& d1) const 
+{
+	return ((this->Day == d1.getDay()) && (this->Month == d1.getMonth()) && (this->Year == d1.getYear()));
+}
+
+
+bool Date::operator < (const Date& d1) const 
+{
+	if (this->Year == d1.getYear()) 
+	{
+		if (this->Month == d1.getMonth()) 
+		{
+			if (this->Day < d1.getDay())
+				return true;
+			return false;
+		}
+		return (this->Month < d1.getMonth());
+	}
+	return this->Year < d1.getYear();
 }

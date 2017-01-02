@@ -29,3 +29,6 @@ unsigned short int RegistrationManagmentMenu();
 
 void RegistrationManagmentOptions(Mieic & TheCourse);
 
+unsigned short int ClassManagmentMenu();
+
+void ClassManagmentOptions(Mieic & TheCourse);

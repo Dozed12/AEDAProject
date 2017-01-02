@@ -15,11 +15,14 @@ class Uc
 	unsigned short int Year;
 	unsigned short int Semester;
 	float ECTS;
+	int vacancies;
 public:
 	Uc();
 	Uc(string aka);
 	string getName() { return Name; }
 	string getAka() { return Aka; }
+	int getVacancies() const { return vacancies; }
+	void lessVacancies() { this->vacancies--; }
 	unsigned short int getYear() { return Year; }
 	unsigned short int getSemester() { return Semester; }
 	float getECTS() { return ECTS; }

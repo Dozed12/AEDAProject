@@ -14,6 +14,7 @@ using namespace std;
 
 #define TAB_BIG "          "
 #define TAB    "   "
+#define TinyTAB " "
 
 
 void resize();			//Funcao que fixa a janela da consola num tamanho preferível para uma melhor visualizacao do programa

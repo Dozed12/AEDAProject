@@ -10,6 +10,7 @@ Uc::Uc()
 	Year = 0;
 	ECTS = 0;
 	Semester = 0;
+	vacancies = 2; //30;
 }
 
 
@@ -20,6 +21,7 @@ void Uc::setUcEmpty()
 	Year = 0;
 	ECTS = 0;
 	Semester = 0;
+	vacancies = 2; //30;
 }
 
 
@@ -30,6 +32,7 @@ Uc::Uc(string aka)
 	Year = 0;
 	ECTS = 0;
 	Semester = 0;
+	vacancies = 2; //30;
 }
 
 

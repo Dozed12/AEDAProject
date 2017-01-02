@@ -18,6 +18,7 @@ void resize()
 	MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 785, 600, TRUE);
 }
 
+
 void clearScreen()
 {
 	HANDLE                     hStdOut;
@@ -54,6 +55,7 @@ void clearScreen()
 	// Move the cursor home 
 	SetConsoleCursorPosition(hStdOut, homeCoords);
 }
+
 
 unsigned short int ReadUnsignedShortInt(unsigned short int min, unsigned short int max)
 {

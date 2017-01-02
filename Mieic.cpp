@@ -1,23 +1,9 @@
-/**********************************************************************************************//**
- * \file	Mieic.cpp
- *
- * \brief	Implements the mieic class.
- **************************************************************************************************/
-
 #include "Mieic.h"
 #include "Tools.h"
 #include <algorithm>
 
 using namespace std;
 
-/**********************************************************************************************//**
- * \fn	Mieic::Mieic()
- *
- * \brief	Default constructor.
-			
-Mieic Constructor, reads information from .txt files
-
- **************************************************************************************************/
 
 Mieic::Mieic()
 {
@@ -84,6 +70,23 @@ Mieic::Mieic()
 		StudentsFile.close();
 	}
 	
+	ifstream HashStudentsFile("StudentsHash.txt");
+	if (HashStudentsFile.peek() != std::ifstream::traits_type::eof()) 
+	{
+		Student First_Student(HashStudentsFile);
+		HashofStudents.insert(First_Student);
+		while (!HashStudentsFile.eof())
+		{
+			Student Each_Student(HashStudentsFile);
+			HashofStudents.insert(Each_Student);
+		}
+		HashStudentsFile.close();
+	}
+	else
+	{
+		HashStudentsFile.close();
+	}
+
 	ifstream RegistrationsFile("Registrations.txt");
 	if (RegistrationsFile.peek() != std::ifstream::traits_type::eof())
 	{
@@ -101,17 +104,53 @@ Mieic::Mieic()
 		RegistrationsFile.close();
 	}
 
+	ifstream ClassesFile("Classes.txt");
+	if (ClassesFile.peek() != std::ifstream::traits_type::eof())
+	{
+		Class First_Class(ClassesFile);
+		ListofClasses.push_back(First_Class);
+		while (!ClassesFile.eof())
+		{
+			Class Each_Class(ClassesFile);
+			ListofClasses.push_back(Each_Class);
+		}
+		ClassesFile.close();
+	}
+	else
+	{
+		ClassesFile.close();
+	}
+
+	for (unsigned int i = 1; i < 6; i++) {							//Initialization of all the 5 nodes(years) of the tree with its respective ucs
+		vector<Uc> aux;
+
+		for (unsigned int j = 0; j < ListofRequiredUcs.size(); j++) {
+			if (ListofRequiredUcs[j].getYear() == i)
+				aux.push_back(ListofRequiredUcs[j]);
+		}
+
+		mieicYears.push_back(Year(i, aux));
+		aux.clear();
+	}
+
+	// add read students to class
+	for (size_t i = 0; i < ListofStudents.size(); i++)
+	{
+		for (size_t j = 0; j < ListofClasses.size(); j++)
+		{
+			if (ListofStudents[i].getYear() == ListofClasses[j].getYear() + 1 && ListofStudents[i].getYearClass() == ListofClasses[j].getNumber() + 1) {
+				ListofClasses[j].addStudent(ListofStudents[i]);
+			}
+		}
+	}
+
+	for (size_t i = 0; i < ListofClasses.size(); i++)
+	{
+		int j = ListofClasses[i].getYear();
+		mieicYears[j].addNewClass(ListofClasses[i]);
+	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::addTutor(string AName)
- *
- * \brief	Adds a tutor.
- *
- Adds Tutor with name provided
- *
- * \param	AName	The name.
- **************************************************************************************************/
 
 void Mieic::addTutor(string AName)
 {
@@ -129,20 +168,14 @@ void Mieic::addTutor(string AName)
 	cout << "Tutor added successfully\n";
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::removeTutor(string AName)
- *
- * \brief	Removes the tutor described by AName.
- *
-Removes tutor with provided name
- *
- * \exception	TutorNaoExistente	Thrown when a tutor nao existente error condition occurs.
- *
- * \param	AName	The name.
- **************************************************************************************************/
 
-void Mieic::removeTutor(string AName)
+void Mieic::removeTutor()
 {
+	string AName;
+	cout << endl << TAB_BIG << TAB_BIG << TAB_BIG << TAB_BIG << "Remove Tutor" << endl << endl << endl;
+	showListofTutors();
+	cout << endl << endl << TAB_BIG << TAB_BIG << "Please enter the name of the Tutor you wish to remove:" << TAB;
+	getline(cin, AName);
 	try {
 		bool isThereName = false;
 		for (unsigned int i = 0; i < ListofTutors.size(); i++)
@@ -169,13 +202,82 @@ void Mieic::removeTutor(string AName)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::distributeTutors()
- *
- * \brief	Distribute tutors.
- *
- Distributes tutors based on a minimum, when all tutors have the same amount of students assign student to tutor 1 and raise minimum
- **************************************************************************************************/
+
+void Mieic::addTutorReunion() 
+{
+	string AName;
+	cout << endl << TAB_BIG << TAB_BIG << TAB_BIG << TAB_BIG << "New Reunion" << endl;
+	showListofTutors();
+	cout << endl << endl << TAB_BIG << "Please enter the name of the Tutor you would like to schedule a reunion:" << TAB;
+	getline(cin, AName);
+	try {
+		unsigned int i, flag = 0;
+		for (i = 0; i < ListofTutors.size(); i++) {
+			if (ListofTutors[i].getName() == AName) {
+				ListofTutors[i].addReunion(AName);
+				flag = 1;
+			}
+		}
+		if (flag == 0)
+			throw TutorNaoExistente(AName);
+	}
+	catch (TutorNaoExistente& e) {
+		cout << endl << endl << "There is no tutor with the name: " << e.nome
+			<< ". Please check if you have spelled the tutor's name correctly." << endl << endl;
+	}
+}
+
+
+void Mieic::removeTutorReunion() 
+{
+	string AName;
+	cout << endl << TAB_BIG << TAB_BIG << TAB_BIG << TAB_BIG << "Cancel Reunion" << endl;
+	showListofTutors();
+	cout << endl << endl << TAB_BIG << "Please enter the name of the Tutor you would like to cancel the reunion:" << TAB;
+	getline(cin, AName);
+	try {
+		int flag = 0;
+
+		for (unsigned int i = 0; i < ListofTutors.size(); i++) {
+			if (ListofTutors[i].getName() == AName) {
+				ListofTutors[i].removeReunion(AName);
+				flag = 1;
+			}
+		}
+		if (flag == 0)
+			throw TutorNaoExistente(AName);
+	}
+	catch (TutorNaoExistente& e) {
+		cout << endl << endl << "There is no tutor with the name: " << e.nome
+			<< ". Please check if you have spelled the tutor's name correctly." << endl << endl;
+	}
+}
+
+
+void Mieic::changeTutorReunion() 
+{
+	string AName;
+	cout << endl << TAB_BIG << TAB_BIG << TAB_BIG << TAB_BIG << "Change Reunion's Description" << endl;
+	showListofTutors();
+	cout << endl << endl << TAB_BIG << "Please enter the name of the Tutor you would like to change the reunion's description:" << TAB;
+	getline(cin, AName);
+	try {
+		int flag = 0;
+		for (unsigned int i = 0; i < ListofTutors.size(); i++) {
+			if (ListofTutors[i].getName() == AName) {
+				ListofTutors[i].changeReunionDescription(AName);
+				flag = 1;
+			}
+		}
+		if (flag == 0)
+			throw TutorNaoExistente(AName);
+	}
+	catch (TutorNaoExistente& e) {
+		cout << endl << endl << "There is no tutor with the name: " << e.nome
+			<< ". Please check if you have spelled the tutor's name correctly." << endl << endl;
+	}
+}
+
 
 void Mieic::distributeTutors() {
 	if (ListofTutors.size() == 0)
@@ -202,26 +304,28 @@ void Mieic::distributeTutors() {
 		}
 	}
 	StudentsChanged = true;
-	SaveChanges();
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::addStudent()
- *
- * \brief	Adds student.
- *
-Adds Student with full information
- *
- * \exception	UcNaoExistente	Thrown when a nao existente error condition occurs.
- **************************************************************************************************/
 
 void Mieic::addStudent()
 {
-	string NewName, NewStatute;
+	string NewName, NewStatute, NewAdress, NewContact;
 	vector<Uc> TheNewApprovedUcs;
 	vector<Uc> TheNewCurrentUcs;
 	long NewCode;
+	unsigned short int TheKindofBool = 0;
 
+	//-----------------------------------
+	/*BSTItrIn<Year> it(mieicYears);
+	vector<Uc> ucs_aux;
+
+	while (!it.isAtEnd()) {
+	if (it.retrieve().getYear() == 2) {
+	for (unsigned int j = 0; j < it.retrieve().getYearUcs().size(); j++)
+	cout << it.retrieve().getYearUcs()[j].getVacancies() << endl;
+	}
+	it.advance();
+	}*/
 
 	long Max_Code = 0;
 	for (unsigned int i = 0; i < ListofStudents.size(); i++)
@@ -250,6 +354,10 @@ void Mieic::addStudent()
 			isThereGoodStatute = true;
 		}
 	}
+	cout << "\n Adress: " << TAB;
+	getline(cin, NewAdress);
+	cout << endl << "\n Contact: " << TAB;
+	cin >> NewContact;
 
 	cout << "\n  Approved Uc's (Input each one seperately)\n\n\t ***Input <exit> when you are done***\n " << endl;
 	string EachUcAka;
@@ -343,7 +451,54 @@ void Mieic::addStudent()
 		}
 	}
 
-	Student NewStudent(NewName, NewCode, NewStatute, TheNewApprovedUcs, TheNewCurrentUcs);
+	int flag;
+	int base_year = 1;
+	vector<pair<int, int>> aux;
+
+	for (unsigned int i = 0; i < TheNewCurrentUcs.size(); i++) {
+		flag = 0;
+		for (unsigned int j = 0; j < aux.size(); j++) {
+			if (TheNewCurrentUcs[i].getYear() == aux[j].first) {
+				flag = 1;
+				aux[j].second++;
+				break;
+			}
+		}
+		if (flag == 0) {
+			pair<int, int> newPair;
+			newPair.first = TheNewCurrentUcs[i].getYear();
+			newPair.second = 1;
+			aux.push_back(newPair);
+		}
+	}
+	pair<int, int> temp;
+	temp.first = 0; temp.second = 0;
+
+	for (unsigned int k = 0; k < aux.size(); k++) {
+		if (aux[k].second > temp.second) {
+			temp.first = aux[k].first;
+			temp.second = aux[k].second;
+		}
+	}
+	base_year = temp.first;
+
+	//Choose Year
+	int Year;
+
+	if (TheNewCurrentUcs.empty())
+	{
+		Year = 0;
+	}
+	else
+	{
+		Year = TheNewCurrentUcs[0].getYear();
+	}
+
+	//Choose Class
+	Student NewStudent(NewName, NewCode, Year, mieicYears[Year - 1].getClassesRaw().top().getNumber() + 1, NewStatute, NewAdress, NewContact, TheNewApprovedUcs, TheNewCurrentUcs, TheKindofBool);
+	
+	mieicYears[Year - 1].addStudentToClass(NewStudent);
+
 	ListofStudents.push_back(NewStudent);
 	StudentsChanged = true;
 	cout << endl << endl << "Student added successfully" << endl << endl;
@@ -351,18 +506,12 @@ void Mieic::addStudent()
 	distributeTutors();
 }
 
-/**********************************************************************************************//**
- * \fn	unsigned short int Mieic::CheckUc(string TheAkaUc, Uc &TheNewUc)
- *
- * \brief	Check uc.
- *
-Checks if UC exists
- *
- * \param 		  	TheAkaUc	the aka uc.
- * \param [in,out]	TheNewUc	the new uc.
- *
- * \return	An int.
- **************************************************************************************************/
+
+void Mieic::showFirstYearClassesStudents() 
+{
+
+}
+
 
 unsigned short int Mieic::CheckUc(string TheAkaUc, Uc &TheNewUc)
 {
@@ -429,18 +578,6 @@ unsigned short int Mieic::CheckUc(string TheAkaUc, Uc &TheNewUc)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::removeStudent(long TheCode)
- *
- * \brief	Removes the student described by TheCode.
- *
-Removes student with code provided
- *
- * \exception	EstudanteNaoExistente	Thrown when an estudante nao existente error condition
- * 										occurs.
- *
- * \param	TheCode	the code.
- **************************************************************************************************/
 
 void Mieic::removeStudent(long TheCode)
 {
@@ -463,29 +600,120 @@ void Mieic::removeStudent(long TheCode)
 	catch (EstudanteNaoExistente &e) {
 		cout << endl << endl << "Sorry! There was no student with the code: " << e.code << ". Please check if you have correctly written the student's code." << endl;
 	}
-	
-
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::StudentPassesUc(long aStudent)
- *
- * \brief	Student passes uc.
- *
-Approves Student in UC
- *
- * \exception	EstudanteNaoExistente	Thrown when an estudante nao existente error condition
- * 										occurs.
- *
- * \param	aStudent	The student.
- **************************************************************************************************/
 
-void Mieic::StudentPassesUc(long aStudent)
+void Mieic::changeStudentFromList(long TheCode)
 {
 	try {
 		unsigned int i;
 
 		for (i = 0; i < ListofStudents.size(); i++)
+		{
+			if (ListofStudents[i].getCode() == TheCode)
+			{
+				string TheCase;
+				cout << "What do you want to change regarding this Student? (Input 'A' for Adress or 'C' for Contact)" << endl << endl;
+				cin >> TheCase;
+				if (TheCase == "A" || TheCase == "a")
+				{
+					string NewAdress;
+					cout << "Please type the new Adress of the Student:" << endl;
+					cin.clear();
+					cin.ignore(256, '\n');
+					getline(cin, NewAdress);
+					ListofStudents[i].setAdress(NewAdress);
+					cout << "Student's Adress was changed successfully" << endl << endl;
+					StudentsChanged = true;
+					return;
+				}
+				else if (TheCase == "C" || TheCase == "c")
+				{ 
+					string NewContact;
+					cout << "Please type the Student's new Contact:" << endl;
+					cin >> NewContact;
+					ListofStudents[i].setContact(NewContact);
+					cout << "Student's Contact was changed successfully" << endl << endl;
+					StudentsChanged = true;
+					return;
+				}
+				else
+				{
+					cout << "The character you inputed was incorrect. Returning to the previous menu." << endl << endl;
+					return;
+				}
+			}
+		}
+		throw EstudanteNaoExistente(TheCode);
+	}
+	catch (EstudanteNaoExistente &e) {
+		cout << endl << endl << "Sorry! There was no student with the code: " << e.code << ". Please check if you have correctly written the student's code." << endl;
+	}
+}
+
+
+void Mieic::changeStudentsFromHash(long TheCode)
+{
+	try 
+	{
+		StudentsHashTableIterator it1 = HashofStudents.begin();
+		for (; it1 != HashofStudents.end(); ++it1)
+		{
+			if ((*it1).getCode() == TheCode)
+			{
+				string TheCase;
+				cout << "What do you want to change regarding this Student? (Input 'A' for Adress or 'C' for Contact)" << endl << endl;
+				cin >> TheCase;
+				if (TheCase == "A" || TheCase == "a")
+				{
+					string NewAdress;
+					cout << "Please type the new Adress of the Student:" << endl;
+					cin.clear();
+					cin.ignore(256, '\n');
+					getline(cin, NewAdress);
+					Student NewStudent = (*it1);
+					HashofStudents.erase(it1);
+					NewStudent.setAdress(NewAdress);
+					HashofStudents.insert(NewStudent);
+					cout << "Student's Adress was changed successfully" << endl << endl;
+					StudentsChanged = true;
+					return;
+				}
+				else if (TheCase == "C" || TheCase == "c")
+				{
+					string NewContact;
+					cout << "Please type the Student's new Contact:" << endl;
+					cin >> NewContact;
+					Student NewStudent = (*it1);
+					HashofStudents.erase(it1);
+					NewStudent.setContact(NewContact);
+					HashofStudents.insert(NewStudent);
+					cout << "Student's Contact was changed successfully" << endl << endl;
+					StudentsChanged = true;
+					return;
+				}
+				else
+				{
+					cout << "The character you inputed was incorrect. Returning to the previous menu." << endl << endl;
+					return;
+				}
+				break;
+			}
+		}
+		throw EstudanteNaoExistente(TheCode);
+	}
+	catch (EstudanteNaoExistente &e) {
+		cout << endl << endl << "Sorry! There was no student with the code: " << e.code << ". Please check if you have correctly written the student's code." << endl;
+	}
+}
+
+
+void Mieic::StudentPassesUc(long aStudent)
+{
+	try {
+		int i;
+		int ListofStudentsSize = ListofStudents.size();
+		for (i = 0; i < ListofStudentsSize; i++)
 		{
 			if (ListofStudents[i].getCode() == aStudent)
 			{
@@ -565,9 +793,24 @@ void Mieic::StudentPassesUc(long aStudent)
 
 				ListofStudents[i].setAvailableCredits(ListofStudents[i].getAvailableCredits() + UcsNumberofECTS);
 
-				StudentsChanged = true;
-				cout << "Student passed Uc Successfully!" << endl << endl;
-				break;
+				if (ListofStudents[i].getApprovedUcs().size() == 47)
+				{
+					ListofStudents[i].setSomeKindofBool(1);
+					HashofStudents.insert(ListofStudents[i]);
+					ListofStudents.erase(ListofStudents.begin() + i);
+					i--;
+
+					distributeTutors();
+					StudentsChanged = true;
+					cout << "Student passed Uc Successfully!" << endl << "The Student Finished the Course!!" << endl << endl;
+					break;
+				}
+				else
+				{
+					StudentsChanged = true;
+					cout << "Student passed Uc Successfully!" << endl << endl;
+					break;
+				}
 			}
 		}
 		if (i == ListofStudents.size())
@@ -580,19 +823,6 @@ void Mieic::StudentPassesUc(long aStudent)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::StudentDoesntPassUc(long aStudent)
- *
- * \brief	Student doesnt pass uc.
- *
-Removes UC from students registration without adding to passed UCs
- *
- * \exception	UcNaoExistente		 	Thrown when a nao existente error condition occurs.
- * \exception	EstudanteNaoExistente	Thrown when an estudante nao existente error condition
- * 										occurs.
- *
- * \param	aStudent	The student.
- **************************************************************************************************/
 
 void Mieic::StudentDoesntPassUc(long aStudent)
 {
@@ -695,17 +925,43 @@ void Mieic::StudentDoesntPassUc(long aStudent)
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
- *
- * \brief	Adds a registration.
- *
-Adds Registration of student in a UC
- *
- * \param	aDate   	The date.
- * \param	aUc			The uc.
- * \param	aStudent	The student.
- **************************************************************************************************/
+
+void Mieic::StudentInterruptsCourse(long aStudent)
+{
+	try 
+	{
+		int i;
+		int ListofStudentsSize = ListofStudents.size();
+		for (i = 0; i < ListofStudentsSize; i++)
+		{
+			if (ListofStudents[i].getCode() == aStudent)
+			{
+				ListofStudents[i].setAvailableCredits(75);
+				vector <Uc> EmptyVector;
+				ListofStudents[i].setCurrentUcs(EmptyVector);
+				ListofStudents[i].setSomeKindofBool(2);
+				HashofStudents.insert(ListofStudents[i]);
+				ListofStudents.erase(ListofStudents.begin() + i);
+				i--;
+
+				mieicYears[ListofStudents[i].getYear()-1].removeStudent(aStudent, ListofStudents[i].getYearClass());
+
+				distributeTutors();
+				StudentsChanged = true;
+				cout << "Student Interrupted the Course Successfully" << endl << endl;
+				break;
+			}
+		}
+		if (i == ListofStudents.size())
+			throw EstudanteNaoExistente(aStudent);
+	}
+	catch (EstudanteNaoExistente& e)
+	{
+		(void)e;
+		cout << endl << endl << "Error! Please check if you have correctly written the student's code." << endl << endl;
+	}
+}
+
 
 void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
 {
@@ -758,11 +1014,15 @@ void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
 						break;
 					}
 
+					string TheActualAka;
 					for (unsigned int b = 0; b < ListofStudents[i].getApprovedUcs().size(); b++)
 					{
-						if (MaxUcYear < ListofStudents[i].getApprovedUcs()[b].getYear())
+						TheActualAka = ListofStudents[i].getApprovedUcs()[b].getAka();
+						unsigned int TheYear = GetTheYear(TheActualAka);
+
+						if (MaxUcYear < TheYear)
 						{
-							MaxUcYear = ListofStudents[i].getApprovedUcs()[b].getYear();
+							MaxUcYear = TheYear;
 						}
 
 					}
@@ -824,12 +1084,17 @@ void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
 					}
 
 					MaxUcYear = 0;
+					string TheActualAka;
 					for (unsigned int m = 0; m < ListofStudents[i].getApprovedUcs().size(); m++)
 					{
-						if (MaxUcYear < ListofStudents[i].getApprovedUcs()[m].getYear())
+						TheActualAka = ListofStudents[i].getApprovedUcs()[m].getAka();
+						unsigned int TheYear = GetTheYear(TheActualAka);
+
+						if (MaxUcYear < TheYear)
 						{
-							MaxUcYear = ListofStudents[i].getApprovedUcs()[m].getYear();
+							MaxUcYear = TheYear;
 						}
+
 					}
 
 					if (ListofOptionalUcs[w].getVacancies() >= 1)
@@ -922,12 +1187,17 @@ void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
 					}
 
 					MaxUcYear = 0;
+					string TheActualAka;
 					for (unsigned int c = 0; c < ListofStudents[TheStudentsIndex].getApprovedUcs().size(); c++)
 					{
-						if (MaxUcYear < ListofStudents[TheStudentsIndex].getApprovedUcs()[c].getYear())
+						TheActualAka = ListofStudents[TheStudentsIndex].getApprovedUcs()[c].getAka();
+						unsigned int TheYear = GetTheYear(TheActualAka);
+
+						if (MaxUcYear < TheYear)
 						{
-							MaxUcYear = ListofStudents[TheStudentsIndex].getApprovedUcs()[c].getYear();
+							MaxUcYear = TheYear;
 						}
+
 					}
 
 					if (ListofStudents[TheStudentsIndex].getAvailableCredits() - (ListofUPortoUcs[h].getECTS()) >= 0)
@@ -993,16 +1263,413 @@ void Mieic::addRegistration(Date aDate, string aUc, long aStudent)
 		cout << "Registration Successfull!" << endl;
 	}
 
-	
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofRUcs()
- *
- * \brief	Shows the listof r ucs.
- *
-Display list of Required UCs
- **************************************************************************************************/
+
+unsigned int Mieic::GetTheYear(string TheAka)
+{
+	bool isThereUc = false;
+	unsigned int TheYear;
+
+	for (unsigned int i = 0; i < ListofRequiredUcs.size(); i++)
+	{
+		if (ListofRequiredUcs[i].getAka() == TheAka)
+		{
+			isThereUc = true;
+			TheYear = ListofRequiredUcs[i].getYear();
+			break;
+		}
+	}
+	if (isThereUc == true)
+	{
+		return TheYear;
+	}
+
+	for (unsigned int j = 0; j < ListofOptionalUcs.size(); j++)
+	{
+		if (ListofOptionalUcs[j].getAka() == TheAka)
+		{
+			isThereUc = true;
+			TheYear = ListofOptionalUcs[j].getYear();
+			break;
+		}
+	}
+	if (isThereUc == true)
+	{
+		return TheYear;
+	}
+
+	for (unsigned int k = 0; k < ListofUPortoUcs.size(); k++)
+	{
+		if (ListofUPortoUcs[k].getAka() == TheAka)
+		{
+			isThereUc = true;
+			TheYear = ListofUPortoUcs[k].getYear();
+			break;
+		}
+	}
+	if (isThereUc == true)
+	{
+		return TheYear;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+
+void Mieic::addHashRegistration(Date aDate, string aUc, long aStudent)
+{
+	unsigned int MaxUcYear = 0;
+	bool isThereStudent = false;
+	bool isThereUc = false;
+	bool isUcApproved = false;
+	bool isThereVacancies = true;
+	bool isThereYear = false;
+
+	StudentsHashTableIterator it1 = HashofStudents.begin();
+	StudentsHashTableIterator it2 = HashofStudents.begin();
+
+	for (; it1 != HashofStudents.end(); it1++)
+	{
+		if ((*it1).getCode() == aStudent)
+		{
+			isThereStudent = true;
+			if ((*it1).getSomeKindofBool() == 1)
+			{
+				cout << "This Student has already finished the Course!" << endl << endl;
+				return;
+			}
+			for (unsigned int j = 0; j < ListofRequiredUcs.size(); j++)
+			{
+				if (ListofRequiredUcs[j].getAka() == aUc)
+				{
+					isThereUc = true;
+					isThereVacancies = true;
+
+					for (unsigned int t = 0; t < (*it1).getApprovedUcs().size(); t++)
+					{
+						if ((*it1).getApprovedUcs()[t].getAka() == aUc)
+						{
+							isUcApproved = true;
+							break;
+						}
+					}
+					if (isUcApproved == true)
+					{
+						break;
+					}
+
+					string TheActualAka;
+					for (unsigned int b = 0; b < (*it1).getApprovedUcs().size(); b++)
+					{
+						TheActualAka = (*it1).getApprovedUcs()[b].getAka();
+						unsigned int TheYear = GetTheYear(TheActualAka);
+
+						if (MaxUcYear < TheYear)									
+						{
+							MaxUcYear = TheYear;
+						}
+
+					}
+					if ((MaxUcYear + 1) >= ListofRequiredUcs[j].getYear())
+					{
+						isThereYear = true;
+						Registration NewRegistration(aDate, aUc, aStudent);
+						ListofRegistrations.push_back(NewRegistration);
+						Uc NewUc(aUc);
+						Student NewStudent = (*it1);
+						HashofStudents.erase(it1);
+						NewStudent.addCurrentUc(aUc);
+						NewStudent.setAvailableCredits(NewStudent.getAvailableCredits() - ListofRequiredUcs[j].getECTS());
+						NewStudent.setSomeKindofBool(0);
+
+						mieicYears[NewStudent.getYear() - 1].addStudentToClass(NewStudent);
+
+						ListofStudents.push_back(NewStudent);
+						distributeTutors();
+						StudentsChanged = true;
+						RegistrationsChanged = true;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+
+			if (isThereUc == true)
+			{
+				break;
+			}
+
+			for (unsigned int w = 0; w < ListofOptionalUcs.size(); w++)
+			{
+				if (ListofOptionalUcs[w].getAka() == aUc)
+				{
+					isThereUc = true;
+
+					for (unsigned int s = 0; s < (*it1).getApprovedUcs().size(); s++)
+					{
+						if ((*it1).getApprovedUcs()[s].getAka() == aUc)
+						{
+							isUcApproved = true;
+							break;
+						}
+					}
+					if (isUcApproved == true)
+					{
+						break;
+					}
+
+					MaxUcYear = 0;
+					string TheActualAka;
+					for (unsigned int m = 0; m < (*it1).getApprovedUcs().size(); m++)
+					{
+						TheActualAka = (*it1).getApprovedUcs()[m].getAka();
+						unsigned int TheYear = GetTheYear(TheActualAka);
+
+						if (MaxUcYear < TheYear)
+						{
+							MaxUcYear = TheYear;
+						}
+
+					}
+
+					if (ListofOptionalUcs[w].getVacancies() >= 1)
+					{
+						if ((MaxUcYear + 1) >= ListofOptionalUcs[w].getYear())
+						{
+							isThereYear = true;
+							Registration NewRegistration(aDate, aUc, aStudent);
+							ListofRegistrations.push_back(NewRegistration);
+							Uc NewUc(aUc);
+							Student NewStudent = (*it1);
+							HashofStudents.erase(it1);
+							NewStudent.addCurrentUc(aUc);
+							NewStudent.setAvailableCredits(NewStudent.getAvailableCredits() - ListofRequiredUcs[w].getECTS());
+							NewStudent.setSomeKindofBool(0);
+							ListofStudents.push_back(NewStudent);
+							distributeTutors();
+							StudentsChanged = true;
+							RegistrationsChanged = true;
+						}
+					}
+					else
+					{
+						isThereVacancies = false;
+					}
+				}
+			}
+		}
+	}
+
+	if (isThereStudent == false)
+	{
+		cout << "Not possible to make Registration because there is no Student with such code" << endl;
+	}
+	else if (isThereStudent == true && isThereUc == false)
+	{
+		cout << "There isn't such Uc" << endl;
+	}
+	else if (isThereStudent == true && isThereUc == true && isUcApproved == true)
+	{
+		cout << "That Student is already approved to that Uc" << endl;
+	}
+
+	else if (isThereStudent == true && isThereUc == true && isUcApproved == false && isThereVacancies == false)
+	{
+		string answer;
+		isThereUc = false;
+		cout << "The Uc does not have any more vancancies left" << endl << endl << "Would you like to register to another Uc from UP? (Y for yes, N for no) ";
+		cin >> answer;
+		while (answer != "Y" && answer != "y" && answer != "n" && answer != "N")
+		{
+			if (answer == "Y" || answer == "y")
+			{
+				showListofUPortoUcs();
+				cout << endl << endl << "Which Uc would you like to register to? (Type the Uc's Initials) ";
+				cin >> aUc;
+				isThereVacancies = true;
+				for (unsigned int h = 0; h < ListofUPortoUcs.size(); h++)
+				{
+					if (ListofUPortoUcs[h].getAka() == aUc)
+					{
+						isThereUc = true;
+
+						for (unsigned int v = 0; v < (*it1).getApprovedUcs().size(); v++)
+						{
+							if ((*it1).getApprovedUcs()[v].getAka() == aUc)
+							{
+								isUcApproved = true;
+								break;
+							}
+						}
+						if (isUcApproved == true)
+						{
+							break;
+						}
+
+						MaxUcYear = 0;
+						string TheActualAka;
+						for (unsigned int c = 0; c < (*it1).getApprovedUcs().size(); c++)
+						{
+							TheActualAka = (*it1).getApprovedUcs()[c].getAka();
+							unsigned int TheYear = GetTheYear(TheActualAka);
+
+							if (MaxUcYear < TheYear)
+							{
+								MaxUcYear = TheYear;
+							}
+
+						}
+
+						if ((MaxUcYear + 1) >= ListofUPortoUcs[h].getYear())
+						{
+							isThereYear = true;
+							Registration NewRegistration(aDate, aUc, aStudent);
+							ListofRegistrations.push_back(NewRegistration);
+							Uc NewUc(aUc);
+							Student NewStudent = (*it1);
+							HashofStudents.erase(it1);
+							NewStudent.addCurrentUc(aUc);
+							NewStudent.setAvailableCredits(NewStudent.getAvailableCredits() - ListofRequiredUcs[h].getECTS());
+							NewStudent.setSomeKindofBool(0);
+							ListofStudents.push_back(NewStudent);
+							distributeTutors();
+							StudentsChanged = true;
+							RegistrationsChanged = true;
+						}
+					}
+				}
+
+				if (isThereStudent == true && isThereUc == false)
+				{
+					cout << "There isn't such Uc" << endl;
+				}
+				else if (isThereStudent == true && isThereUc == true && isUcApproved == true)
+				{
+					cout << "That Student is already approved to that Uc" << endl;
+				}
+				else if (isThereStudent == true && isThereUc == true && isUcApproved == false && isThereVacancies == true && isThereYear == false)
+				{
+					cout << "That Uc's year is too advanced for that Student." << endl;
+				}
+				else if (isThereStudent == true && isThereUc == true && isUcApproved == false && isThereVacancies == true && isThereYear == true)
+				{
+					cout << "Registration Successfull!" << endl;
+				}
+			}
+			else if (answer == "N" || answer == "n")
+			{
+				cout << "No Registration made";
+			}
+			else
+			{
+				cout << "Incorrect character inputed. Please input 'Y' for Yes or 'N' for No" << endl << endl;
+			}
+		}
+	}
+
+	else if (isThereStudent == true && isThereUc == true && isUcApproved == false && isThereVacancies == true && isThereYear == false)
+	{
+		cout << "That Uc's year is too advanced for that Student." << endl;
+	}
+	else if (isThereStudent == true && isThereUc == true && isUcApproved == false && isThereVacancies == true && isThereYear == true)
+	{
+		cout << "Registration Successfull!" << endl;
+	}
+
+}
+
+
+void Mieic::addClass() {
+
+	int Year;
+	int Size;
+
+	cout << TAB_BIG << "New Class:\n";
+	cout << endl << " Please Input the New Class's Information: " << endl << endl << "  Year:" << TAB;
+	cin >> Year;
+	cout << endl << " Size: " << TAB;
+	cin >> Size;
+
+	int HighestClassNumber = 0;
+	for (size_t i = 0; i < mieicYears[Year - 1].getClasses().size(); i++)
+	{
+		if (mieicYears[Year - 1].getClasses()[i].getNumber() > HighestClassNumber)
+		{
+			HighestClassNumber = mieicYears[Year - 1].getClasses()[i].getNumber();
+		}
+	}
+
+	HighestClassNumber++;
+
+	priority_queue<Student> students;
+
+	vector<Uc> ucs;
+
+	for (unsigned int j = 0; j < ListofRequiredUcs.size(); j++) {
+		if (ListofRequiredUcs[j].getYear() == Year)
+			ucs.push_back(ListofRequiredUcs[j]);
+	}
+
+	Class a(HighestClassNumber, Year, Size, students, ucs);
+
+	mieicYears[Year - 1].addNewClass(a);
+
+	a.setYear(a.getYear() - 1);
+
+	ListofClasses.push_back(a);
+	cout << TAB_BIG << TAB_BIG << "Class added successfully! " << endl << endl << endl;
+
+	ClassesChanged = true;
+
+}
+
+
+void Mieic::removeClass() {
+
+	int Year;
+	int Number;
+
+	cout << TAB_BIG << "Class to remove:\n";
+	cout << endl << " Please Input the information of the Class you wish to remove: " << endl << endl << "  Year:" << TAB;
+	cin >> Year;
+	cout << endl << " Number: " << TAB;
+	cin >> Number;
+
+	mieicYears[Year - 1].RedistributeAndDelete(Number);
+
+	vector<Student> StudentAux;
+	for (size_t i = 0; i < ListofStudents.size(); i++)
+	{
+		for (size_t j = 0; j < mieicYears[Year - 1].getClasses().size(); j++)
+		{
+			for (size_t h = 0; h < mieicYears[Year - 1].getClasses()[j].getStudents().size(); h++)
+			{
+				if (ListofStudents[i].getCode() == mieicYears[Year - 1].getClasses()[j].getStudents()[h].getCode()) {
+					ListofStudents[i].setYearClass(mieicYears[Year - 1].getClasses()[j].getNumber() + 1);
+				}
+			}
+		}
+	}
+
+	for (size_t i = 0; i < ListofClasses.size(); i++)
+	{
+		if (ListofClasses[i].getNumber() == Number - 1 && ListofClasses[i].getYear() == Year - 1) {
+			ListofClasses.erase(ListofClasses.begin() + i);
+			cout << TAB_BIG << TAB_BIG << "Class removed successfully! " << endl << endl << endl;
+			break;
+		}
+	}
+
+	StudentsChanged = true;
+	ClassesChanged = true;
+
+}
+
 
 void Mieic::showListofRUcs()
 {
@@ -1014,13 +1681,6 @@ void Mieic::showListofRUcs()
 	cout << endl << endl;
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofOUcs()
- *
- * \brief	Shows the listof o ucs.
- *
- Display list of Optional UCs
- **************************************************************************************************/
 
 void Mieic::showListofOUcs()
 {
@@ -1031,13 +1691,6 @@ void Mieic::showListofOUcs()
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofUPortoUcs()
- *
- * \brief	Shows the listof u porto ucs.
- *
- Display list of Other UP UCs
- **************************************************************************************************/
 
 void Mieic::showListofUPortoUcs()
 {
@@ -1048,13 +1701,6 @@ void Mieic::showListofUPortoUcs()
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListAllUcs()
- *
- * \brief	Shows the list all ucs.
- *
- Display list of all MIEIC UCs
- **************************************************************************************************/
 
 void Mieic::showListAllUcs()
 {
@@ -1195,16 +1841,6 @@ void Mieic::showListofSecondSemesterUcs()
 }
 
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showSearchUC(string AKA)
- *
- * \brief	Shows the search uc.
- *
- Display information of searched UC including registred students
- *
- * \param	AKA	The aka.
- **************************************************************************************************/
-
 void Mieic::showSearchUC(string AKA) {
 	bool found = false;
 	cout << "\n";
@@ -1213,7 +1849,7 @@ void Mieic::showSearchUC(string AKA) {
 		if (AKA == ListofRequiredUcs[i].getAka())
 		{
 			found = true;
-			cout << ListofRequiredUcs[i].getName() << " (" << ListofRequiredUcs[i].getAka() << "):\n\tYear: " << ListofRequiredUcs[i].getYear() << "\n\tSemester: " << ListofRequiredUcs[i].getSemester() << "\n\tCredits: " << ListofRequiredUcs[i].getECTS() << endl;
+			cout << ListofRequiredUcs[i].getName() << " (" << ListofRequiredUcs[i].getAka() << "):\n\tYear: " << ListofRequiredUcs[i].getYear() << "\n\tSemester: " << ListofRequiredUcs[i].getSemester() << "\n\tCredits: " << ListofRequiredUcs[i].getECTS() << endl << endl << endl;
 			break;
 		}
 	}
@@ -1222,7 +1858,7 @@ void Mieic::showSearchUC(string AKA) {
 		if (AKA == ListofOptionalUcs[i].getAka())
 		{
 			found = true;
-			cout << ListofOptionalUcs[i].getName() << " (" << ListofOptionalUcs[i].getAka() << "):\n\tYear: " << ListofOptionalUcs[i].getYear() << "\n\tSemester: " << ListofOptionalUcs[i].getSemester() << "\n\tCredits: " << ListofOptionalUcs[i].getECTS() << "\n\tVacancies: " << ListofOptionalUcs[i].getVacancies() << endl;
+			cout << ListofOptionalUcs[i].getName() << " (" << ListofOptionalUcs[i].getAka() << "):\n\tYear: " << ListofOptionalUcs[i].getYear() << "\n\tSemester: " << ListofOptionalUcs[i].getSemester() << "\n\tCredits: " << ListofOptionalUcs[i].getECTS() << "\n\tVacancies: " << ListofOptionalUcs[i].getVacancies() << endl<< endl << endl;
 			break;
 		}
 	}
@@ -1231,7 +1867,7 @@ void Mieic::showSearchUC(string AKA) {
 		if (AKA == ListofUPortoUcs[i].getAka())
 		{
 			found = true;
-			cout << ListofUPortoUcs[i].getName() << " (" << ListofUPortoUcs[i].getAka() << "):\n\tYear: " << ListofUPortoUcs[i].getYear() << "\n\tSemester: " << ListofUPortoUcs[i].getSemester() << "\n\tCredits: " << ListofUPortoUcs[i].getECTS() << endl;
+			cout << ListofUPortoUcs[i].getName() << " (" << ListofUPortoUcs[i].getAka() << "):\n\tYear: " << ListofUPortoUcs[i].getYear() << "\n\tSemester: " << ListofUPortoUcs[i].getSemester() << "\n\tCredits: " << ListofUPortoUcs[i].getECTS() << endl << endl << endl;
 			break;
 		}
 	}
@@ -1257,13 +1893,6 @@ void Mieic::showSearchUC(string AKA) {
 
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofTutors()
- *
- * \brief	Shows the listof tutors.
- *
-Display list of Tutors
- **************************************************************************************************/
 
 void Mieic::showListofTutors()
 {
@@ -1275,13 +1904,6 @@ void Mieic::showListofTutors()
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofStudents()
- *
- * \brief	Shows the listof students.
- *
-Display list of Students
- **************************************************************************************************/
 
 void Mieic::showListofStudents()
 {
@@ -1291,39 +1913,75 @@ void Mieic::showListofStudents()
 
 	for (unsigned int i = 0; i < ListofStudents.size(); i++)
 	{
-		cout << ListofStudents[i].getName() << ", " << ListofStudents[i].getCode() << ", " << ListofStudents[i].getEmail() << "; " << ListofStudents[i].getStatute() << endl << "Approved Uc's: " << ListofStudents[i].showApprovedUcs() << endl << "Current Uc's: " << ListofStudents[i].showCurrentUcs() << endl << "Tutor: " << ListofStudents[i].getTutor() << endl << endl << endl;
+		cout << ListofStudents[i].getName() << ", " << ListofStudents[i].getCode() << ", " << ListofStudents[i].getEmail() << "; " << ListofStudents[i].getAdress() << "; " << ListofStudents[i].getContact() << "; " << ListofStudents[i].getStatute() << endl << "Approved Uc's: " << ListofStudents[i].showApprovedUcs() << endl << "Current Uc's: " << ListofStudents[i].showCurrentUcs() << endl << "Tutor : " << ListofStudents[i].getTutor() << endl << endl << endl;
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showInfoStudent(long code)
- *
- * \brief	Shows the information student.
- *
-Display Information of Student
- *
- * \exception	EstudanteNaoExistente	Thrown when an estudante nao existente error condition
- * 										occurs.
- *
- * \param	code	The code.
- **************************************************************************************************/
+
+void Mieic::showListofIorTStudents()
+{
+	cout << TAB_BIG << "List of Students of Interrupted or Completed the Course:" << endl << endl;
+	StudentsHashTableIterator it1 = HashofStudents.begin();
+
+	for (; it1 != HashofStudents.end(); it1++)
+	{
+		Student TheStudent = (*it1);
+		cout << TheStudent.getName() << ", " << TheStudent.getCode() << ", " << TheStudent.getEmail() << "; " << TheStudent.getAdress() << "; " << TheStudent.getContact() << endl << "Approved Uc's: " << TheStudent.showApprovedUcs() << endl;
+		if (TheStudent.getSomeKindofBool() == 1)
+		{
+			cout << "Estado: Terminou" << endl << endl << endl;
+		}
+		else if (TheStudent.getSomeKindofBool() == 2)
+		{
+			cout << "Estado: Interrompeu" << endl << endl << endl;
+		}
+	}
+}
+
 
 void Mieic::showInfoStudent(long code)
 {
-
+	bool isThereStudent = false;
+	StudentsHashTableIterator it1 = HashofStudents.begin();
 	unsigned int i;
 	try {
 		for (i = 0; i < ListofStudents.size(); i++)
 		{
 			if (ListofStudents[i].getCode() == code)
 			{
-				cout << "Name:" << TAB << ListofStudents[i].getName() << "\nCode:" << TAB << ListofStudents[i].getCode() << "\nE-mail:" << TAB <<
-					ListofStudents[i].getEmail() << "\nApproved UC's: " << TAB << ListofStudents[i].showApprovedUcs() << endl << "Current Uc's: " << TAB <<
-					ListofStudents[i].showCurrentUcs() << endl << "Available Credits: " << TAB << ListofStudents[i].getAvailableCredits() << endl;
+				isThereStudent = true;
+				cout << endl << endl << endl << "Name:" << TAB << ListofStudents[i].getName() << "\nCode:" << TAB << ListofStudents[i].getCode() << "\nE-mail:" << TAB <<
+					ListofStudents[i].getEmail() << "\nAdress:" << TAB << ListofStudents[i].getAdress() << "\nContact:" << TAB << ListofStudents[i].getContact() << "\nApproved UC's: " <<
+					TAB << ListofStudents[i].showApprovedUcs() << endl << "Current Uc's: " << TAB << ListofStudents[i].showCurrentUcs() << endl << 
+					"Available Credits: " << TAB << ListofStudents[i].getAvailableCredits() << endl;
 				break;
 			}
 		}
-		if (i == ListofStudents.size())
+		if (isThereStudent == false)
+		{
+			for (; it1 != HashofStudents.end(); it1++)
+			{
+				if ((*it1).getCode() == code)
+				{
+					isThereStudent = true;
+					Student TheStudent = (*it1);
+					cout << endl << endl << endl << "Name:" << TAB << TheStudent.getName() << "\nCode:" << TAB << TheStudent.getCode() << "\nE-mail:" << TAB <<
+						TheStudent.getEmail() << "\nAdress:" << TAB << TheStudent.getAdress() << "\nContact:" << TAB << TheStudent.getContact() << "\nApproved UC's: " << TAB <<
+						TheStudent.showApprovedUcs() << endl << "Current Uc's: " << TAB << TheStudent.showCurrentUcs() << endl << "Available Credits: " << TAB <<
+						TheStudent.getAvailableCredits() << endl;
+					if (TheStudent.getSomeKindofBool() == 1)
+					{
+						cout << TAB << "Estado: Terminou" << endl << endl << endl;
+					}
+					else if (TheStudent.getSomeKindofBool() == 2)
+					{
+						cout << TAB << "Estado: Interrompeu" << endl << endl << endl;
+					}
+					break;
+				}
+			}
+		}
+		if (i == ListofStudents.size() && it1 == HashofStudents.end())
 			throw EstudanteNaoExistente(code);   //cout << "Sorry! There were no matches. Please check if you have correctly written the student's code." << endl;
 	}
 	catch (EstudanteNaoExistente& e) 
@@ -1332,25 +1990,8 @@ void Mieic::showInfoStudent(long code)
 		cout << endl << endl << 
 			"Error! Please check if you have correctly written the student's code." << endl;
 	}
-	/*
-			if (ListofStudents[i].getApprovedUcs().size() == 0)
-				cout << "Name:" << TAB << ListofStudents[i].getName() << "\nCode:" << TAB << ListofStudents[i].getCode() << "\nE-mail:" << TAB <<
-				ListofStudents[i].getEmail() << "\nApproved UC's: The student does not have any Approved UC.";// << "\nCurrent UC's: " << ListofStudents[i].showCurrentUcs() << endl;
-			else
-				cout << "Name:" << TAB << ListofStudents[i].getName() << "\nCode:" << TAB << ListofStudents[i].getCode() << "\nE-mail:" << TAB <<
-				ListofStudents[i].getEmail() << "\nApproved UC's: " << ListofStudents[i].showApprovedUcs();// << "\nCurrent UC's: " << ListofStudents[i].showCurrentUcs() << endl;
-			break;
-		}
-	*/
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::showListofRegistrations()
- *
- * \brief	Shows the listof registrations.
- *
-Display list of Registrations
- **************************************************************************************************/
 
 void Mieic::showListofRegistrations()
 {
@@ -1358,17 +1999,34 @@ void Mieic::showListofRegistrations()
 
 	for (unsigned int i = 0; i < ListofRegistrations.size(); i++)
 	{
-		cout << "Codigo de Aluno: " << ListofRegistrations[i].getStudentCode() << ", Uc: " << ListofRegistrations[i].getUcAka() << ", Data: " << ListofRegistrations[i].getDate() << endl;
+		cout << "Student's Code: " << ListofRegistrations[i].getStudentCode() << ", Uc: " << ListofRegistrations[i].getUcAka() << ", Data: " << ListofRegistrations[i].getDate() << endl;
 	}
 }
 
-/**********************************************************************************************//**
- * \fn	void Mieic::SaveChanges() const
- *
- * \brief	Saves the changes.
- *
-Saves changes to files if changes occured
- **************************************************************************************************/
+
+void Mieic::showListofClasses() {
+
+	for (size_t i = 0; i < mieicYears.size(); i++)
+	{
+
+		cout << TAB_BIG << "Year " << i + 1 << ":\n\n";
+
+		for (size_t j = 0; j < mieicYears[i].getClasses().size(); j++)
+		{
+			int vacancies = mieicYears[i].getClasses()[j].getnStudents() - mieicYears[i].getClasses()[j].getStudents().size();
+			cout << TAB << "- Number: " << mieicYears[i].getClasses()[j].getNumber() + 1 << "  Vacancies: " << vacancies << "/" << mieicYears[i].getClasses()[j].getnStudents() << "\n\tList of Students:\n";
+			for (size_t h = 0; h < mieicYears[i].getClasses()[j].getStudents().size(); h++)
+			{
+				cout << "\t\t- " << mieicYears[i].getClasses()[j].getStudents()[h].getCode() << "\n";
+			}
+			cout << "\n";
+		}
+		cout << "\n";
+
+	}
+
+}
+
 
 void Mieic::SaveChanges() const
 {
@@ -1385,6 +2043,19 @@ void Mieic::SaveChanges() const
 		ofstream OStudents("Students.txt");
 		OStudents << newStudents;
 		OStudents.close();
+
+		stringstream ss2;
+		StudentsHashTableIterator it1 = HashofStudents.begin();
+		for (; it1 != HashofStudents.end(); ++it1)
+		{
+			if (it1 != HashofStudents.begin())
+				ss2 << endl;
+			ss2 << (*it1);
+		}
+		string newStudentsHash = ss2.str();
+		ofstream OStudentsHash("StudentsHash.txt");
+		OStudentsHash << newStudentsHash;
+		OStudentsHash.close();
 	}
 	if (TutorsChanged == true)			//se TutorsChanged estiver "true" a função passa tudo o que o vector contém para uma string
 	{									//e copia a string para o ficheiro original, apagando a informação antiga
@@ -1415,4 +2086,43 @@ void Mieic::SaveChanges() const
 		ORegistrations.close();
 	}
 
+
+	if (ClassesChanged == true)		//se ClassesChanged estiver "true" a função passa tudo o que o vector contém para uma string
+	{									//e copia a string para o ficheiro original, apagando a informação antiga
+		stringstream ss;
+		for (size_t i = 0; i < ListofClasses.size(); ++i)
+		{
+			if (i != 0)
+				ss << endl;
+			ss << ListofClasses[i];
+		}
+		string newClasses = ss.str();
+		ofstream OClasses("Classes.txt");
+		OClasses << newClasses;
+		OClasses.close();
+	}
+
+
+}
+
+void Mieic::showTutorReunions() {
+	string AName;
+	cout << TAB_BIG << TAB_BIG << TAB_BIG << TAB_BIG << "Change Reunion's Description" << endl;
+	cout << endl << TAB_BIG << "Please enter the name of the Tutor you would like to see the reunions:" << TAB;
+	getline(cin, AName);
+	try {
+		int flag = 0;
+		for (unsigned int i = 0; i < ListofTutors.size(); i++) {
+			if (ListofTutors[i].getName() == AName) {
+				ListofTutors[i].showReunions(AName);
+				flag = 1;
+			}
+		}
+		if (flag == 0)
+			throw TutorNaoExistente(AName);
+	}
+	catch (TutorNaoExistente& e) {
+		cout << endl << endl << "There is no tutor with the name: " << e.nome
+			<< ". Please check if you have spelled the tutor's name correctly." << endl << endl;
+	}
 }
